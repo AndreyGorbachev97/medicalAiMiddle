@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+build/
+*.js.map
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Docker
+docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.temp
+
+# Uploaded files
+file_0-*
+file_1-*
+file_2-*
+uploads/
+temp_images/
+*.pdf
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.gif
+*.tiff
+
+# Keep documentation images if any
+!docs/**/*.png
+!docs/**/*.jpg
+
