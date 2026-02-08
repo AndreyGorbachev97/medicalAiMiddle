@@ -26,23 +26,6 @@ app.get('/health', (_req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api', analysisRoutes);
 
-// Callback для OAuth (простой HTML для получения токена)
-app.get('/auth/callback', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-  res.send(`
-    <html>
-      <head>
-        <title>Authentication Success</title>
-      </head>
-      <body>
-        <h1>Аутентификация успешна!</h1>
-        <p>Ваш токен: <code>${token}</code></p>
-        <p>Сохраните этот токен для использования API.</p>
-      </body>
-    </html>
-  `);
-});
-
 // 404 handler
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: 'Not Found' });
