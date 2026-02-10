@@ -38,10 +38,14 @@ app.use((err: Error, _req: Request, res: Response) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
 });
+
+// Увеличиваем таймаут для обработки больших файлов (5 минут)
+server.timeout = 300000; // 5 минут
+server.keepAliveTimeout = 305000; // Чуть больше чем timeout
 
 export default app;
 
