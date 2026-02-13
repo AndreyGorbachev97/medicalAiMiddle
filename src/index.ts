@@ -5,6 +5,7 @@ import passport from 'passport';
 import './config/auth';
 import authRoutes from './routes/auth';
 import analysisRoutes from './routes/analysis';
+import paymentRoutes, { paymentService } from './routes/payment';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.get('/health', (_req: Request, res: Response) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api', analysisRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
@@ -41,6 +43,11 @@ app.use((err: Error, _req: Request, res: Response) => {
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
+
+  // Восстанавливаем polling для незавершённых платежей
+  paymentService.recoverPendingPayments().catch((err) => {
+    console.error('Failed to recover pending payments:', err);
+  });
 });
 
 // Увеличиваем таймаут для обработки больших файлов (5 минут)

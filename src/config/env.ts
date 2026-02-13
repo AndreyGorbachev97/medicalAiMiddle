@@ -15,3 +15,4 @@ export const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587', 10);
 export const SMTP_USER = process.env.SMTP_USER || '';
 export const SMTP_PASS = process.env.SMTP_PASS || '';
 export const SMTP_FROM = process.env.SMTP_FROM || '';
+export const INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET || '';

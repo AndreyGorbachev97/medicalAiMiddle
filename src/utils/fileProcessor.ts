@@ -10,7 +10,7 @@ const ocrService = new OCRService();
  */
 export async function processFile(
   file: Express.Multer.File, 
-  userId: number
+  userId: string | number
 ): Promise<string> {
   try {
     // Читаем файл в буфер
@@ -31,7 +31,7 @@ export async function processFile(
  */
 export async function processFiles(
   files: Express.Multer.File[], 
-  userId: number
+  userId: string | number
 ): Promise<string[]> {
   const extractedTexts: string[] = [];
 
