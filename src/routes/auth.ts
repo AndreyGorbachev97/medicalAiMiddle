@@ -309,4 +309,55 @@ router.post('/google-signin', async (req, res) => {
   }
 });
 
+// Yandex OAuth — создание/поиск пользователя по данным от NextAuth
+router.post('/yandex-signin', async (req, res) => {
+  try {
+    const { email, name, yandexId } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const supabase = getSupabaseClient();
+
+    // Ищем пользователя по email
+    let { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (!user) {
+      // Создаём нового пользователя
+      const { data: newUser, error } = await supabase
+        .from('users')
+        .insert({
+          email,
+          name: name || null,
+          auth_provider: 'yandex',
+          external_id: yandexId || null,
+          email_verified: true,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        return res.status(500).json({ error: 'Failed to create user' });
+      }
+      user = newUser;
+    }
+
+    return res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    });
+  } catch (error) {
+    console.error('Yandex signin error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;
