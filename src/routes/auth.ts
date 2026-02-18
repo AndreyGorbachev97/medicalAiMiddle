@@ -360,4 +360,55 @@ router.post('/yandex-signin', async (req, res) => {
   }
 });
 
+// VK OAuth — создание/поиск пользователя по данным от NextAuth
+router.post('/vk-signin', async (req, res) => {
+  try {
+    const { email, name, vkId } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const supabase = getSupabaseClient();
+
+    // Ищем пользователя по email
+    let { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (!user) {
+      // Создаём нового пользователя
+      const { data: newUser, error } = await supabase
+        .from('users')
+        .insert({
+          email,
+          name: name || null,
+          auth_provider: 'vk',
+          external_id: vkId || null,
+          email_verified: true,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        return res.status(500).json({ error: 'Failed to create user' });
+      }
+      user = newUser;
+    }
+
+    return res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    });
+  } catch (error) {
+    console.error('VK signin error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;
