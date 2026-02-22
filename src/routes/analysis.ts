@@ -85,14 +85,14 @@ router.post('/analysis', authenticateInternal, upload.fields([{ name: 'file_0' }
 
     // Шаг 5: Записываем статистику
     const processingTime = Date.now() - startTime;
-    await supabase.from('analysis_stats').insert({
+    const { data: statsData } = await supabase.from('analysis_stats').insert({
       user_id: userId,
       files_count: allFiles.length,
       document_types: [],
       text_length: combinedText.length,
       processing_time_ms: processingTime,
       status: 'completed',
-    });
+    }).select('id').single();
 
     // Шаг 6: Очищаем загруженные файлы
     uploadedFiles.forEach(filePath => {
@@ -121,6 +121,7 @@ router.post('/analysis', authenticateInternal, upload.fields([{ name: 'file_0' }
         textSourcesExtracted: extractedTexts.length,
       },
       credits: updatedUser?.analysis_credits ?? 0,
+      analysisStatsId: statsData?.id ?? null,
     });
 
   } catch (error) {

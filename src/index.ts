@@ -6,6 +6,7 @@ import './config/auth';
 import authRoutes from './routes/auth';
 import analysisRoutes from './routes/analysis';
 import paymentRoutes, { paymentService } from './routes/payment';
+import feedbackRoutes from './routes/feedback';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.get('/health', (_req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api', analysisRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

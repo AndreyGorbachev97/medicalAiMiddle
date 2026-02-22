@@ -171,6 +171,7 @@ export class OpenAIService {
         userMessage += `\n\n📝 Дополнительная информация от пациента:\n${userContext}`;
       }
 
+      console.log('useTestMode', useTestMode);
       const completion = await this.openai.chat.completions.create({
         messages: [
           { role: 'system', content: MEDICAL_ANALYSIS_PROMPT },
