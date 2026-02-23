@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import passport from 'passport';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 
@@ -7,9 +9,13 @@ export interface AuthUser {
   name?: string;
 }
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET env variable is required');
+}
+
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET || 'your-secret-key',
+  secretOrKey: process.env.JWT_SECRET,
 };
 
 passport.use(
