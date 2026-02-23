@@ -51,7 +51,7 @@ export class OCRService {
     }
   }
 
-  public async extractText(fileBuffer: Buffer, _userId: number): Promise<string> {
+  public async extractText(fileBuffer: Buffer, _userId: string | number): Promise<string> {
     try {
       // Проверяем размер файла
       if (fileBuffer.length > this.MAX_FILE_SIZE) {
