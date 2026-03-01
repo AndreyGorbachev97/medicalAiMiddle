@@ -167,12 +167,14 @@ router.post('/app', authenticateInternal, appFeedbackLimiter, async (req: Reques
       .eq('id', userId)
       .single();
 
-    await sendAppFeedback(
+    sendAppFeedback(
       user?.email || 'unknown',
       user?.name || 'unknown',
       subject?.trim() || 'Без темы',
       message.trim(),
-    );
+    ).catch((err) => {
+      console.error('Failed to send app feedback email:', err);
+    });
 
     return res.json({ success: true });
   } catch (error) {
