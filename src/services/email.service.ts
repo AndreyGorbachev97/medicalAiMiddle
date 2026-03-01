@@ -15,6 +15,47 @@ export function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+export async function sendAppFeedback(
+  userEmail: string,
+  userName: string,
+  subject: string,
+  message: string,
+): Promise<void> {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #f9fafb; border-radius: 12px;">
+      <h2 style="color: #1a1a2e; margin-bottom: 4px;">Медицинский AI Анализ</h2>
+      <p style="color: #555; margin-top: 0; margin-bottom: 24px;">Новое сообщение от пользователя</p>
+      <div style="background: #ffffff; border-radius: 8px; padding: 24px; border: 1px solid #e5e7eb;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr>
+            <td style="padding: 8px 0; color: #6b7280; font-size: 13px; width: 100px; vertical-align: top;">Пользователь:</td>
+            <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${userName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6b7280; font-size: 13px; vertical-align: top;">Email:</td>
+            <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${userEmail}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6b7280; font-size: 13px; vertical-align: top;">Тема:</td>
+            <td style="padding: 8px 0; color: #1a1a2e; font-size: 14px;">${subject}</td>
+          </tr>
+        </table>
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin-bottom: 20px;" />
+        <p style="color: #6b7280; font-size: 13px; margin: 0 0 8px;">Сообщение:</p>
+        <p style="color: #1a1a2e; font-size: 14px; line-height: 1.7; white-space: pre-wrap; margin: 0;">${message}</p>
+      </div>
+    </div>
+  `;
+
+  await transporter.sendMail({
+    from: SMTP_FROM,
+    to: 'medicalaibot@yandex.ru',
+    subject: `Обратная связь: ${subject}`,
+    html,
+    replyTo: userEmail,
+  });
+}
+
 export async function sendVerificationCode(email: string, code: string): Promise<void> {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f9fafb; border-radius: 12px;">

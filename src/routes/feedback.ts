@@ -1,8 +1,20 @@
 import express, { Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import { authenticateInternal } from '../middleware/internalAuth';
 import { getSupabaseClient } from '../config/database';
+import { sendAppFeedback } from '../services/email.service';
 
 const router = express.Router();
+
+// Ограничение: 3 отзыва на пользователя в час
+const appFeedbackLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  keyGenerator: (req: Request) => (req as any).user?.id || req.ip || 'unknown',
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Слишком много запросов. Попробуйте через час.' },
+});
 
 // POST /api/feedback/rating — сохранить/обновить рейтинг
 router.post('/rating', authenticateInternal, async (req: Request, res: Response) => {
@@ -125,6 +137,47 @@ router.post('/comment', authenticateInternal, async (req: Request, res: Response
     console.error('Feedback comment error:', error);
     const message = error instanceof Error ? error.message : 'Internal server error';
     return res.status(500).json({ error: message });
+  }
+});
+
+// POST /api/feedback/app — обратная связь по приложению
+router.post('/app', authenticateInternal, appFeedbackLimiter, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { subject, message } = req.body;
+
+    if (!message || typeof message !== 'string' || message.trim().length < 10) {
+      return res.status(400).json({ error: 'Сообщение должно содержать не менее 10 символов' });
+    }
+    if (message.trim().length > 2000) {
+      return res.status(400).json({ error: 'Сообщение не должно превышать 2000 символов' });
+    }
+    if (subject && (typeof subject !== 'string' || subject.length > 100)) {
+      return res.status(400).json({ error: 'Тема не должна превышать 100 символов' });
+    }
+
+    const supabase = getSupabaseClient();
+    const { data: user } = await supabase
+      .from('users')
+      .select('email, name')
+      .eq('id', userId)
+      .single();
+
+    await sendAppFeedback(
+      user?.email || 'unknown',
+      user?.name || 'unknown',
+      subject?.trim() || 'Без темы',
+      message.trim(),
+    );
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('App feedback error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
